@@ -7,6 +7,9 @@ import DefaultJsonProtocol._
 import com.typesafe.sbt.pgp.PgpKeys
 import gov.nasa.jpl.imce.sbt._
 import gov.nasa.jpl.imce.sbt.ProjectHelper._
+import scala.xml._
+
+enablePlugins(AetherPlugin)
 
 useGpg := true
 
@@ -86,6 +89,16 @@ lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
         Artifact("gov.nasa.jpl.magicdraw.projectUsageIntegrityChecker", "zip", "zip", Some("resource"), Seq(), None, Map())
     )
   )
+  .dependsOnSourceProjectOrLibraryArtifacts(
+    "com-nomagic-magicdraw-package",
+    "com.nomagic.magicdraw.package",
+    Seq(
+      "org.omg.tiwg.vendor.nomagic" % "com.nomagic.magicdraw.package"
+        % "18.0-sp6" % "compile"
+        artifacts
+        Artifact("com.nomagic.magicdraw.package", "pom", "pom", None, Seq(), None, Map())
+    )
+  )
   .settings(
     IMCEKeys.licenseYearOrRange := "2016",
     IMCEKeys.organizationInfo := IMCEPlugin.Organizations.omf,
@@ -101,7 +114,7 @@ lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
         "artifact.kind" -> "generic.library")
     },
 
-    libraryDependencies += "gov.nasa.jpl.cae.magicdraw.packages" % "cae_md18_0_sp6_mdk" % "2.4.3",
+    //libraryDependencies += "org.omg.tiwg.vendor.nomagic" % "com.nomagic.magicdraw.package" % "18.0-sp6",
 
     resourceDirectory in Compile :=
       baseDirectory.value / "resources",
@@ -125,6 +138,7 @@ lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
 
     resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce"),
     resolvers += Resolver.bintrayRepo("tiwg", "org.omg.tiwg"),
+    resolvers += Resolver.bintrayRepo("tiwg-vendor", "org.omg.tiwg.vendor.nomagic"),
 
     extractArchives := {
       val base = baseDirectory.value
@@ -139,17 +153,60 @@ lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
 
         IO.createDirectory(mdInstallDir)
 
+        val tfilter: DependencyFilter = new DependencyFilter {
+          def apply(c: String, m: ModuleID, a: Artifact): Boolean =
+            (a.extension == "pom" &&
+              m.organization.startsWith("org.omg.tiwg.vendor.nomagic") &&
+                m.name.startsWith("com.nomagic.magicdraw.package"))
+        }
+        // https://github.com/sbt/sbt/issues/2461
+        /*up.allModules.foreach { mod =>
+          if (mod.extraAttributes.get("md.core") != None) {
+            s.log.info(
+              s"=> (Modules) NEED TO DOWNLOAD FROM ${mod.extraAttributes.get("md.core")}"
+            )
+          }
+          else
+            s.log.info(
+              s"=> (BABOOM) ${mod.extraDependencyAttributes} ${mod}"
+            )
+        }
+        up.allModules.foreach { mod =>
+          mod.explicitArtifacts.foreach { art =>
+            if (art.extraAttributes.get("md.core") != None) {
+              s.log.info(
+                s"=> NEED TO DOWNLOAD FROM ${art.extraAttributes.get("md.core")}"
+              )
+            }
+            else
+              s.log.info(
+                s"=> (BABOOM ART) ${art.extraAttributes}"
+              )
+          }
+        }*/
+        val ts: Seq[File] = up.matching(tfilter)
+        ts.foreach { pom =>
+          // Use unzipURL to download & extract
+          //val files = IO.unzip(zip, mdInstallDir)
+          val mdNoInstallZipDownloadURL = ((XML.load(pom.absolutePath) \\ "properties") \ "md.core").text
+
+          s.log.info(
+            s"=> found: ${pom.getName} at ${mdNoInstallZipDownloadURL}")
+        }
+
         val pfilter: DependencyFilter = new DependencyFilter {
           def apply(c: String, m: ModuleID, a: Artifact): Boolean =
             (a.`type` == "zip" || a.`type` == "resource") &&
               a.extension == "zip" &&
-              m.organization.startsWith("gov.nasa.jpl") &&
+              (m.organization.startsWith("gov.nasa.jpl") || m.organization.startsWith("com.nomagic")) &&
               (m.name.startsWith("cae_md") ||
                 m.name.startsWith("gov.nasa.jpl.magicdraw.projectUsageIntegrityChecker") ||
-                m.name.startsWith("imce.dynamic_scripts.magicdraw.plugin"))
+                m.name.startsWith("imce.dynamic_scripts.magicdraw.plugin") ||
+                m.name.startsWith("com.nomagic.magicdraw.package"))
         }
         val ps: Seq[File] = up.matching(pfilter)
         ps.foreach { zip =>
+          // Use unzipURL to download & extract
           val files = IO.unzip(zip, mdInstallDir)
           s.log.info(
             s"=> created md.install.dir=$mdInstallDir with ${files.size} " +
@@ -167,8 +224,7 @@ lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
               !(m.name.startsWith("cae_md") ||
                 m.name.startsWith("gov.nasa.jpl.magicdraw.projectUsageIntegrityChecker") ||
                 m.name.startsWith("imce.dynamic_scripts.magicdraw.plugin") ||
-                m.name.startsWith("imce.third_party") ||
-                m.name.startsWith("com.nomagic.magicdraw.package"))
+                m.name.startsWith("imce.third_party"))
         }
         val zs: Seq[File] = up.matching(zfilter)
         zs.foreach { zip =>
