@@ -14,6 +14,17 @@ Here come the installation instructions...
 
 Here come the configuration instructions...
 
+Create a file `local.credentials.sbt` with:
+
+```sbt
+// credentials for publishing....
+credentials += ...
+
+// credentials for downloading MagicDraw from NoMagic's server
+credentials += Credentials("NoMagic", "webdev.nomagic.com", "<user>", "<password>")
+
+```
+
 ## Running the Profile Generator
 
 And lastly, here's how to run it...

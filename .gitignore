@@ -3,6 +3,8 @@
 .idea
 *.iml
 *.bak
+*.gpg
+*.tmp
 *~
 *links.json
 project/project
