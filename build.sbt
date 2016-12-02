@@ -235,6 +235,7 @@ lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
                 totalBytes += read
                 output.write(bytes,0,read)
 
+                // Prints the status
                 Console.printf(
                   "    %.2f MB / %.2f MB (%.1f%%)\r", (totalBytes / 1024 / 1024), (size*1.0 / 1024.0 / 1024.0), (totalBytes / size) * 100
                 )
