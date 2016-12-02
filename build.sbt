@@ -1,5 +1,6 @@
-import java.io.File
+import java.io.{File, FileOutputStream}
 
+import sys.process._
 import sbt.Keys._
 import sbt._
 import spray.json._
@@ -7,7 +8,12 @@ import DefaultJsonProtocol._
 import com.typesafe.sbt.pgp.PgpKeys
 import gov.nasa.jpl.imce.sbt._
 import gov.nasa.jpl.imce.sbt.ProjectHelper._
+
 import scala.xml._
+import scala.Double
+import scala.math._
+import java.nio.charset.StandardCharsets
+import scala.Console
 
 enablePlugins(AetherPlugin)
 
@@ -188,10 +194,69 @@ lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
         ts.foreach { pom =>
           // Use unzipURL to download & extract
           //val files = IO.unzip(zip, mdInstallDir)
-          val mdNoInstallZipDownloadURL = ((XML.load(pom.absolutePath) \\ "properties") \ "md.core").text
+          val mdNoInstallZipDownloadURL = new URL(((XML.load(pom.absolutePath) \\ "properties") \ "md.core").text)
 
           s.log.info(
             s"=> found: ${pom.getName} at ${mdNoInstallZipDownloadURL}")
+
+          // Get the credentials based on host
+          val mdCredentials = credentials.value
+            .find((c: Credentials) =>
+              c match {
+                case dc: DirectCredentials => dc.host.equals(mdNoInstallZipDownloadURL.getHost)
+                case _ => false
+              })
+
+          // TODO The following cases should still be handled:
+          // 1. If no credentials are found, attempt a connection without basic authorization
+          // 2. If username and password cannot be extracted (e.g., unsupported FileCredentials),
+          //    then throw error
+          // 3. If authorization wrong, ensure that SBT aborts
+          if (mdCredentials != None) {
+            val username = getUsername(mdCredentials.get)
+            val password = getPassword(mdCredentials.get)
+
+            // Download the file into /target
+            val connection = connectionWithBasicAuthentication(mdNoInstallZipDownloadURL, username, password)
+            val size = connection.getContentLengthLong
+            val input = connection.getInputStream
+            val output = new FileOutputStream(base / "target" / "no_install.zip")
+
+            s.log.info(
+              s"=> Downloading ${size} bytes (= ${size / 1024 / 1024} MB)..."
+            )
+
+            val bytes = new Array[Byte](1024*1024)
+            var totalBytes : Double = 0
+            Iterator
+              .continually(input.read(bytes))
+              .takeWhile(-1 !=)
+              .foreach(read=>{
+                totalBytes += read
+                output.write(bytes,0,read)
+
+                Console.printf(
+                  "    %.2f MB / %.2f MB (%.1f%%)\r", (totalBytes / 1024 / 1024), (size*1.0 / 1024.0 / 1024.0), (totalBytes / size) * 100
+                )
+                //val progress = "    %.2f MB / %.2f MB (%.1f%%)\b\b\r".format((totalBytes / 1024 / 1024), (size*1.0 / 1024.0 / 1024.0), (totalBytes / size) * 100)
+                //s.log.info(
+                //  progress
+                //)
+              })
+
+            output.close
+
+            // Use unzipURL to download & extract
+            val files = IO.unzip(base / "target" / "no_install.zip", mdInstallDir)
+            s.log.info(
+              s"=> created md.install.dir=$mdInstallDir with ${files.size} " +
+                s"files extracted from zip located at: ${mdNoInstallZipDownloadURL}")
+          }
+          else {
+            s.log.error(
+              s"=> failed to get credentials for downloading MagicDraw no_install zip"
+            )
+          }
         }
 
         val pfilter: DependencyFilter = new DependencyFilter {
@@ -261,6 +326,29 @@ lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
     compile in Compile := (compile in Compile).dependsOn(extractArchives).value
 
   )
+
+def connectionWithBasicAuthentication(url: URL, username: String, password: String) = {
+  // Opens a connection and adds basic authentication to request
+  // NOTE: java.util.Base64 is a Java8-only library
+  val connection = url.openConnection()
+
+  connection.setRequestProperty(
+      "Authorization",
+      "Basic " + java.util.Base64.getEncoder.encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8))
+    )
+
+  connection
+}
+
+def getUsername(c: Credentials): String = c match {
+  case dc: DirectCredentials => dc.userName
+  case _ => null
+}
+
+def getPassword(c: Credentials): String = c match {
+  case dc: DirectCredentials => dc.passwd
+  case _ => null
+}
 
 def dynamicScriptsResourceSettings(projectName: String): Seq[Setting[_]] = {
 
