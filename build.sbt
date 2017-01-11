@@ -24,6 +24,10 @@ fork in run := true
 
 updateOptions := updateOptions.value.withCachedResolution(true)
 
+
+resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce")
+resolvers += Resolver.bintrayRepo("tiwg-vendor", "org.omg.tiwg.vendor.nomagic")
+resolvers += Resolver.bintrayRepo("tiwg", "org.omg.tiwg")
 resolvers += 
 "Artifactory" at "https://cae-artifactory.jpl.nasa.gov/artifactory/ext-release-local/"
 
@@ -147,10 +151,6 @@ lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
     publishArtifact in(Test, packageSrc) := false,
 
     unmanagedClasspath in Compile ++= (unmanagedJars in Compile).value,
-
-    resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce"),
-    resolvers += Resolver.bintrayRepo("tiwg", "org.omg.tiwg"),
-    resolvers += Resolver.bintrayRepo("tiwg-vendor", "org.omg.tiwg.vendor.nomagic"),
 
     extractArchives := {
       val base = baseDirectory.value
