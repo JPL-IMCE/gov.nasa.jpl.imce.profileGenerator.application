@@ -161,96 +161,14 @@ lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
       val mdInstallDir = base / "target" / "md.package"
       if (!mdInstallDir.exists) {
 
-        val libDir = mdInstallDir / "lib"
-
         IO.createDirectory(mdInstallDir)
 
-        val tfilter: DependencyFilter = new DependencyFilter {
-          def apply(c: String, m: ModuleID, a: Artifact): Boolean =
-            a.extension == "pom" &&
-              m.organization.startsWith("org.omg.tiwg.vendor.nomagic") &&
-              m.name.startsWith("com.nomagic.magicdraw.package")
-        }
-
-        up
-          .matching(tfilter)
-          .headOption
-          .fold[Unit]{
-          s.log.warn("No MagicDraw POM artifact found!")
-        }{ pom =>
-          // Use unzipURL to download & extract
-          //val files = IO.unzip(zip, mdInstallDir)
-          val mdNoInstallZipDownloadURL = new URL(((XML.load(pom.absolutePath) \\ "properties") \ "md.core").text)
-
-          s.log.info(
-            s"=> found: ${pom.getName} at $mdNoInstallZipDownloadURL")
-
-          // Get the credentials based on host
-          credentials
-            .value
-            .flatMap {
-              case dc: DirectCredentials if dc.host.equals(mdNoInstallZipDownloadURL.getHost) =>
-                Some(dc)
-              case _ =>
-                None
-            }
-            .headOption
-            .fold[Unit] {
-            s.log.error(
-              s"=> failed to get credentials for downloading MagicDraw no_install zip"
-            )
-          } { mdCredentials =>
-
-            // 1. If no credentials are found, attempt a connection without basic authorization
-            // 2. If username and password cannot be extracted (e.g., unsupported FileCredentials),
-            //    then throw error
-            // 3. If authorization wrong, ensure that SBT aborts
-
-            val connection = mdNoInstallZipDownloadURL.openConnection()
-
-            connection
-              .setRequestProperty(
-                  "Authorization",
-                  "Basic " + java.util.Base64.getEncoder.encodeToString(
-                    (mdCredentials.userName + ":" + mdCredentials.passwd)
-                      .getBytes(StandardCharsets.UTF_8))
-              )
-
-            // Download the file into /target
-            val size = connection.getContentLengthLong
-            val input = connection.getInputStream
-            val output = new FileOutputStream(base / "target" / "no_install.zip")
-
-            s.log.info(s"=> Downloading $size bytes (= ${size / 1024 / 1024} MB)...")
-
-            val bytes = new Array[Byte](1024 * 1024)
-            var totalBytes: Double = 0
-            Iterator
-              .continually(input.read(bytes))
-              .takeWhile(-1 != _)
-              .foreach { read =>
-                totalBytes += read
-                output.write(bytes, 0, read)
-
-                if (showDownloadProgress) {
-                  Console.printf(
-                    "    %.2f MB / %.2f MB (%.1f%%)\r",
-                    totalBytes / 1024 / 1024,
-                    size * 1.0 / 1024.0 / 1024.0,
-                    (totalBytes / size) * 100)
-                }
-              }
-
-            output.close()
-
-            // Use unzipURL to download & extract
-            val files = IO.unzip(base / "target" / "no_install.zip", mdInstallDir)
-            s.log.info(
-              s"=> created md.install.dir=$mdInstallDir with ${files.size} " +
-                s"files extracted from zip located at: $mdNoInstallZipDownloadURL")
-          }
-
-        }
+        MagicDrawDownloader.fetchMagicDraw(
+          s.log, showDownloadProgress,
+          up,
+          credentials.value,
+          mdInstallDir, base / "target" / "no_install.zip"
+        )
 
         val pfilter: DependencyFilter = new DependencyFilter {
           def apply(c: String, m: ModuleID, a: Artifact): Boolean =
