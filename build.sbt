@@ -125,12 +125,12 @@ lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
         "artifact.kind" -> "generic.library")
     },
 
-  libraryDependencies +=
-    "org.omg.tiwg.vendor.nomagic"
-      % "com.nomagic.magicdraw.package"
-      % "18.0-sp6.2"
-      artifacts
-      Artifact("com.nomagic.magicdraw.package", "pom", "pom", None, Seq(), None, Map()),
+//  libraryDependencies +=
+//    "org.omg.tiwg.vendor.nomagic"
+//      % "com.nomagic.magicdraw.package"
+//      % "18.0-sp6.2"
+//      artifacts
+//      Artifact("com.nomagic.magicdraw.package", "pom", "pom", None, Seq(), None, Map()),
 
     resourceDirectory in Compile :=
       baseDirectory.value / "resources",
