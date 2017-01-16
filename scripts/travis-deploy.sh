@@ -17,8 +17,8 @@ chmod 600 local.*
 eval `ssh-agent -s`
 ssh-add local.deploy_key
 git config --global push.default simple
-git config --global user.email "nobody@nobody.org"
-git config --global user.name "Travis CI"
+git config --global user.email "Sebastian.J.Herzig@jpl.nasa.gov"
+git config --global user.name "Travis CI (on behalf of Sebastian.J.Herzig)"
 
 sbt -jvm-opts travis/jvmopts.compile -Dproject.version=$TRAVIS_TAG publishSigned ghpagesPushSite
 
