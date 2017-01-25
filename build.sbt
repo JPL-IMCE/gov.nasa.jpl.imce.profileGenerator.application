@@ -36,10 +36,10 @@ lazy val artifactZipFile = taskKey[File]("Location of the zip artifact file")
 
 lazy val zipInstall = TaskKey[File]("zip-install", "Zip the resources")
 
-lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
+lazy val core = Project("gov-nasa-jpl-imce-profileGenerator-application", file("."))
   .enablePlugins(IMCEGitPlugin)
   .enablePlugins(IMCEReleasePlugin)
-  .settings(dynamicScriptsResourceSettings("gov.nasa.jpl.imce.profileGenerator"))
+  .settings(dynamicScriptsResourceSettings("gov.nasa.jpl.imce.profileGenerator.application"))
   .settings(IMCEPlugin.strictScalacFatalWarningsSettings)
   .settings(IMCEReleasePlugin.packageReleaseProcessSettings)
   .dependsOnSourceProjectOrLibraryArtifacts(
@@ -108,7 +108,7 @@ lazy val core = Project("gov-nasa-jpl-imce-profileGenerator", file("."))
   IMCEKeys.organizationInfo := IMCEPlugin.Organizations.omf,
   IMCEKeys.targetJDK := IMCEKeys.jdk18.value,
 
-  buildInfoPackage := "gov.nasa.jpl.imce.profileGenerator",
+  buildInfoPackage := "gov.nasa.jpl.imce.profileGenerator.application",
   buildInfoKeys ++= Seq[BuildInfoKey](BuildInfoKey.action("buildDateUTC") { buildUTCDate.value }),
 
   resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce"),
