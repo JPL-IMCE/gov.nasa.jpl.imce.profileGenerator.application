@@ -80,7 +80,8 @@ object GenerateProfile {
   }
 
   /**
-    * Produce all profiles for all digests found in a particular subdirectory.
+    * Hook for dynamic script to produce all profiles for all digests in
+    * the [base]/resources/digests directory.
     *
     * @param p
     * @param ev
@@ -91,6 +92,19 @@ object GenerateProfile {
   ( p: Project, ev: ActionEvent, script: MainToolbarMenuAction )
   : Try[Option[MagicDrawValidationDataResults]]
   = {
+    generateAllProfiles("resources/digests")
+  }
+
+  /**
+    * Produce all profiles for all digests found in a particular directory.
+    *
+    * @param dir
+    * @return
+    */
+  def generateAllProfiles
+  ( dir : String )
+  : Try[Option[MagicDrawValidationDataResults]]
+  = {
     // Collect a list of all files in a particular subdirectory
     def collectFiles(dir : File) : Array[File] = {
       val these = dir.listFiles
@@ -98,7 +112,7 @@ object GenerateProfile {
     }
 
     // Filter the list of files in a subdirectory by the extension used by digests (here: json)
-    val digests = collectFiles(new File("resources/digests")).filter(f => f.getAbsoluteFile.toString.endsWith(".json"))
+    val digests = collectFiles(new File(dir)).filter(f => f.getAbsoluteFile.toString.endsWith(".json"))
 
     System.out.println(s"generate all profiles for ${digests.size} digests...")
 
@@ -120,8 +134,8 @@ object GenerateProfile {
   /**
     * Produce a single profile.
     *
-    * @param inputFile
-    * @return
+    * @param inputFile JSON digest
+    * @return Success or Failure
     */
   def produceSingleProfile
   (inputFile : File)
