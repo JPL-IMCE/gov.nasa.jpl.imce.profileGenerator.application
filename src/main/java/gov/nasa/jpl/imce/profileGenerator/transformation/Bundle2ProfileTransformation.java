@@ -51,6 +51,7 @@ import gov.nasa.jpl.imce.profileGenerator.io.JSONBundleDigestReader;
 import gov.nasa.jpl.imce.profileGenerator.io.MDUMLProfileWriter;
 import gov.nasa.jpl.imce.profileGenerator.model.bundle.BundleDigest;
 import gov.nasa.jpl.imce.profileGenerator.model.profile.Package;
+import gov.nasa.jpl.imce.profileGenerator.util.MDUtils;
 
 /**
  * @author sherzig
@@ -99,21 +100,25 @@ public class Bundle2ProfileTransformation {
 					Configuration.generateValidationOCLValidationSuite = true;
 				}
 	        }
+
 			Files.copy(Paths.get(Configuration.template), new FileOutputStream(new File(Configuration.outputFile)));
 			
 			BundleDigestReader bundleReader = new JSONBundleDigestReader();
 			bundleReader.openBundle(Configuration.inputFile);
-			//JSONBundleDigestReader bundleReader = new JSONBundleDigestReader();
-			//bundleReader.openBundle("test/project-bundle.json");
 			
 			BundleDigest bundle = bundleReader.readBundleModel();
 			
 			Bundle2ProfileMappings mappings = new Bundle2ProfileMappings();
 			
 			Package profilePackage = mappings.bundleToProfile(bundle);
+
+			String mdArgs[] = {"-verbose", "DEVELOPER"};
+			MDUtils.launchMagicDraw(mdArgs);
 			
 			MDUMLProfileWriter mdUMLProfileWriter = new MDUMLProfileWriter();
 			mdUMLProfileWriter.writeModel(profilePackage);
+
+			MDUtils.shutdownMagicDraw();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -45,6 +45,8 @@ import java.awt.event.ActionEvent
 import java.io.{File, FileOutputStream}
 import java.nio.file.{Files, Paths}
 
+import java.lang.System
+
 import com.nomagic.magicdraw.core.Project
 import gov.nasa.jpl.dynamicScripts.DynamicScriptsTypes.MainToolbarMenuAction
 import gov.nasa.jpl.dynamicScripts.magicdraw.validation.MagicDrawValidationDataResults
@@ -53,8 +55,8 @@ import gov.nasa.jpl.imce.profileGenerator.model.bundle.BundleDigest
 import gov.nasa.jpl.imce.profileGenerator.model.profile.Package
 import gov.nasa.jpl.imce.profileGenerator.transformation.{Bundle2ProfileMappings, Configuration}
 
-import scala.{Array,Option}
-import scala.util.Try
+import scala.{Array,Option,None,StringContext}
+import scala.util.{Failure,Success,Try}
 import scala.Predef.refArrayOps
 
 import java.lang.System
@@ -98,10 +100,21 @@ object GenerateProfile {
     // Filter the list of files in a subdirectory by the extension used by digests (here: json)
     val digests = collectFiles(new File("resources/digests")).filter(f => f.getAbsoluteFile.toString.endsWith(".json"))
 
-    // Create the various profiles, and package
-    digests.map(d => produceSingleProfile(d))
+    System.out.println(s"generate all profiles for ${digests.size} digests...")
 
-    null
+    digests.foldLeft[Try[Option[MagicDrawValidationDataResults]]](
+      Success(None)
+    ){ case (acc, digest) =>
+
+        for {
+          _ <- acc
+          _ = System.out.println(s"Processing digest: $digest ...")
+          _ <- produceSingleProfile(digest)
+          _ = System.out.println(s"Processed digest: $digest")
+        } yield None
+
+    }
+
   }
 
   /**
@@ -110,12 +123,15 @@ object GenerateProfile {
     * @param inputFile
     * @return
     */
-  def produceSingleProfile(inputFile : File) = {
+  def produceSingleProfile
+  (inputFile : File)
+  : Try[Option[MagicDrawValidationDataResults]]
+  = {
     if (!inputFile.exists()) {
-      System.out.println("[ERROR] Specified input bundle digest does not exist at " + inputFile.getAbsolutePath)
+      Failure(new java.lang.IllegalArgumentException("[ERROR] Specified input bundle digest does not exist at " + inputFile.getAbsolutePath))
     }
     else if (!(new File(Configuration.template)).exists()) {
-      System.out.println("[ERROR] Specified template file does not exist at " + (new File(Configuration.template)).getAbsolutePath)
+      Failure(new java.lang.IllegalArgumentException("[ERROR] Specified template file does not exist at " + (new File(Configuration.template)).getAbsolutePath))
     }
     else {
       Files.copy(Paths.get(Configuration.template), new FileOutputStream(new File(Configuration.outputFile)))
@@ -133,7 +149,7 @@ object GenerateProfile {
       mdUMLProfileWriter.writeModel(profilePackage)
     }
 
-    null
+    Success(None)
   }
 
 }

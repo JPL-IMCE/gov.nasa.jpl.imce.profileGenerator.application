@@ -686,7 +686,7 @@ public class MDUMLProfileWriter {
 	 */
 	private void prepare() {
 		// Probably out of class
-		if (Application.getInstance() == null) {
+		/*if (Application.getInstance() == null) {
 			if (Configuration.silent) {
 				String args[] = {};
 				MDUtils.launchMagicDraw(args);
@@ -694,7 +694,7 @@ public class MDUMLProfileWriter {
 				String args[] = {"-verbose", "DEVELOPER"};
 				MDUtils.launchMagicDraw(args);
 			}
-		}
+		}*/
 
 		MDUtils.loadProject(Configuration.outputFile);
 
@@ -764,9 +764,9 @@ public class MDUMLProfileWriter {
 
 		System.out.println("!!!! DONE !!!!");
 
-		if (Configuration.silent) {
+		/*if (Configuration.silent) {
 			MDUtils.shutdownMagicDraw();
-		}
+		}*/
 	}
 
 	/**

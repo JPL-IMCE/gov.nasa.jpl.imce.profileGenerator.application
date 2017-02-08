@@ -98,8 +98,12 @@ class ProjectUsageIntegrityUtilities(project: Project) {
 
 		var checkForRepairs = true
 
-		while (checkForRepairs) {
+		// FIXME Fixing an error may trigger other errors => just use a max loop
+		var maxRepairLoops = 500
+
+		while (checkForRepairs && maxRepairLoops > 0) {
 			checkForRepairs = false
+			maxRepairLoops = maxRepairLoops - 1
 			
 			iterations += 1
 			//log.log(String.format("(iteration=%d)", iterations));
