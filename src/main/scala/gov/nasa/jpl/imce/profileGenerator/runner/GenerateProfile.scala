@@ -46,6 +46,7 @@ import java.io.{File, FileOutputStream}
 import java.nio.file.{Files, Paths}
 
 import java.lang.System
+import java.lang.String
 
 import com.nomagic.magicdraw.core.Project
 import gov.nasa.jpl.dynamicScripts.DynamicScriptsTypes.MainToolbarMenuAction
