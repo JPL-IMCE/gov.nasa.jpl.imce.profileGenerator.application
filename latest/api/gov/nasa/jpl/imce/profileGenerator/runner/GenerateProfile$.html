@@ -243,6 +243,23 @@
               
         </dd></dl></div>
     </li><li name="gov.nasa.jpl.imce.profileGenerator.runner.GenerateProfile#generateAllProfiles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="generateAllProfiles(dir:String):scala.util.Try[Option[gov.nasa.jpl.dynamicScripts.magicdraw.validation.MagicDrawValidationDataResults]]"></a>
+      <a id="generateAllProfiles(String):Try[Option[MagicDrawValidationDataResults]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">generateAllProfiles</span><span class="params">(<span name="dir">dir: <span class="extype" name="java.lang.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="gov.nasa.jpl.dynamicScripts.magicdraw.validation.MagicDrawValidationDataResults">MagicDrawValidationDataResults</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../index.html#gov.nasa.jpl.imce.profileGenerator.runner.GenerateProfile$@generateAllProfiles(dir:String):scala.util.Try[Option[gov.nasa.jpl.dynamicScripts.magicdraw.validation.MagicDrawValidationDataResults]]" title="Permalink" target="_top">
+        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Produce all profiles for all digests found in a particular directory.</p>
+    </li><li name="gov.nasa.jpl.imce.profileGenerator.runner.GenerateProfile#generateAllProfiles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="generateAllProfiles(p:com.nomagic.magicdraw.core.Project,ev:java.awt.event.ActionEvent,script:gov.nasa.jpl.dynamicScripts.DynamicScriptsTypes.MainToolbarMenuAction):scala.util.Try[Option[gov.nasa.jpl.dynamicScripts.magicdraw.validation.MagicDrawValidationDataResults]]"></a>
       <a id="generateAllProfiles(Project,ActionEvent,MainToolbarMenuAction):Try[Option[MagicDrawValidationDataResults]]"></a>
       <h4 class="signature">
@@ -258,7 +275,8 @@
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Produce all profiles for all digests found in a particular subdirectory.</p>
+      <p class="shortcomment cmt">Hook for dynamic script to produce all profiles for all digests in
+the [base]/resources/digests directory.</p>
     </li><li name="gov.nasa.jpl.imce.profileGenerator.runner.GenerateProfile#generateProfile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="generateProfile(p:com.nomagic.magicdraw.core.Project,ev:java.awt.event.ActionEvent,script:gov.nasa.jpl.dynamicScripts.DynamicScriptsTypes.MainToolbarMenuAction):scala.util.Try[Option[gov.nasa.jpl.dynamicScripts.magicdraw.validation.MagicDrawValidationDataResults]]"></a>
       <a id="generateProfile(Project,ActionEvent,MainToolbarMenuAction):Try[Option[MagicDrawValidationDataResults]]"></a>
@@ -379,23 +397,24 @@ by the Configuration class values.</p>
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="gov.nasa.jpl.imce.profileGenerator.runner.GenerateProfile#produceSingleProfile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="produceSingleProfile(inputFile:java.io.File):Null"></a>
-      <a id="produceSingleProfile(File):Null"></a>
+    </li><li name="gov.nasa.jpl.imce.profileGenerator.runner.GenerateProfile#produceSingleProfile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="produceSingleProfile(inputFile:java.io.File):scala.util.Try[Option[gov.nasa.jpl.dynamicScripts.magicdraw.validation.MagicDrawValidationDataResults]]"></a>
+      <a id="produceSingleProfile(File):Try[Option[MagicDrawValidationDataResults]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">produceSingleProfile</span><span class="params">(<span name="inputFile">inputFile: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.Null">Null</span></span>
+        <span class="name">produceSingleProfile</span><span class="params">(<span name="inputFile">inputFile: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="gov.nasa.jpl.dynamicScripts.magicdraw.validation.MagicDrawValidationDataResults">MagicDrawValidationDataResults</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#gov.nasa.jpl.imce.profileGenerator.runner.GenerateProfile$@produceSingleProfile(inputFile:java.io.File):Null" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#gov.nasa.jpl.imce.profileGenerator.runner.GenerateProfile$@produceSingleProfile(inputFile:java.io.File):scala.util.Try[Option[gov.nasa.jpl.dynamicScripts.magicdraw.validation.MagicDrawValidationDataResults]]" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Produce a single profile.</p>
+      <p class="shortcomment cmt">Produce a single profile.</p><div class="fullcomment"><div class="comment cmt"><p>Produce a single profile.
+</p></div><dl class="paramcmts block"><dt class="param">inputFile</dt><dd class="cmt"><p>JSON digest</p></dd><dt>returns</dt><dd class="cmt"><p>Success or Failure</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
